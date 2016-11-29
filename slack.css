@@ -1,0 +1,49 @@
+h1, h4{
+	text-align: center;
+}
+.message {
+	display:table;
+	font-family:"Lucida Grande", sans-serif;
+	max-width: 40em;
+	margin: 0 auto;	
+	margin-bottom: 0.8em;
+}
+.left{
+	position:relative;
+}
+.right{
+	float:top;
+	position:relative;
+}
+.pinned_by{
+	font-size: 65%;
+	color:gray;
+}
+.profile_wrapper{
+	width:3em;
+	height:inherit;
+	float:left;
+	margin-right: 0.5em;	
+}
+.profile_pic {
+	width:3em;
+	border-radius: 0.25em;
+}
+.below_profile_spacer{
+	height:auto;
+}
+.name_time{
+	margin-bottom: 0.25em;
+}
+name{
+	font-weight:bold;
+	font-size: 105%;
+}
+time{
+	font-size: 85%;
+	color:gray;
+}
+.message_body{
+	font-weight: 300;
+	font-size: 90%;
+}
