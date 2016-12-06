@@ -77,16 +77,6 @@ def generate_slack_message(item):
 
 	message = "%s pinned &lt;%s|%s's message&gt;. View a list of all pinned mesages in %s at %s." % (pinning_user_name, permalink, author_user_name, channel_name, pin_archive_url)
 
-
-	message = ""
-	message += pinning_user_name
-	message += " pinned "
-	message += author_user_name
-	message += "'s message in #"
-	message += channel_name
-	message += ".\nView an archive of all pinned messages at "
-	message += ""#some url
-	message += "."
 	return message
 
 if sc.rtm_connect():
