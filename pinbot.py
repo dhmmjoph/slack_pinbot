@@ -4,7 +4,6 @@ import time
 
 
 token = open("slack_token.dat", "r").read()
-#token = "xoxb-110109408469-2NStnpT0jxgbNS9A4Cs5izeO"
 print token
 sc = SlackClient(token)
 
