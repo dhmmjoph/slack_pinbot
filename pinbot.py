@@ -72,7 +72,12 @@ def generate_slack_message(item):
 	author_user_id = item["item"]["message"]["user"]
 	author_user_name = sc.api_call("users.info", user=author_user_id)["user"]["profile"]["real_name"]
 
-	message_text = item["item"]["message"]["text"]
+	permalink = item["item"]["message"]["permalink"]
+
+	pin_archive_url = "http://pins.ev3.pw/%s.html" % channel_id
+
+	message = "%s pinned &lt;%s|%s's message&gt;. View a list of all pinned mesages in %s at %s." % (pinning_user_name, permalink, author_user_name, channel_name, pin_archive_url)
+
 
 	message = ""
 	message += pinning_user_name
