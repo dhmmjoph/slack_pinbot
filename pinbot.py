@@ -21,6 +21,17 @@ channel: %s
 	print "Created file for %s" % channel_name
 
 
+def html_link_format(message):
+	message_split = message.split()
+	new = ""
+	for word in message_split:
+		if (word[0] == '<' and word[-1] == '>'):
+			bar = word.find("|")
+			new += "<a href=\"%s\">%s</a>" % (word[1:bar], word[bar+1:-1])
+		else: new += word
+		new += " "
+	return new + " "
+
 def generate_html_item(item):
 	channel_id = item["channel_id"]
 	channel_name = sc.api_call("channels.info", channel=channel_id)["channel"]["name"]
@@ -32,6 +43,7 @@ def generate_html_item(item):
 	author_user_name = sc.api_call("users.info", user=author_user_id)["user"]["profile"]["real_name"]
 
 	message_text = item["item"]["message"]["text"]
+	message_text = html_link_format(message_text)
 
 	unix_ts = item["item"]["message"]["ts"]
 	#strip everything after the dot
@@ -74,6 +86,7 @@ def generate_html_item(item):
 
 	return entry
 
+
 def add_pin_to_file(item):
 	channel_id = item["channel_id"]
 	file_path = channel_id + ".html"
@@ -95,11 +108,6 @@ def add_pin_to_file(item):
 		f.write(new_file)
 		
 
-def generate_populated_file(channel_id):
-	file_path = channel_id + ".html"
-	with open(file_path, 'w') as f:
-		print "test"
-		
 def push_changes(item):
 	channel_id = item["channel_id"]
 	channel_name = sc.api_call("channels.info", channel=channel_id)["channel"]["name"]
