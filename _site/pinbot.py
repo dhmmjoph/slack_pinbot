@@ -5,7 +5,7 @@ import os.path
 import codecs
 
 token = open("slack_token.dat", "r").read()
-print token
+#print token
 sc = SlackClient(token)
 
 
@@ -107,9 +107,14 @@ def push_changes(item):
 	pinning_user_id = item["user"]
 	pinning_user_name = sc.api_call("users.info", user=pinning_user_id)["user"]["profile"]["real_name"]
 
-	commit_message = "add pin by %s in %s" % (pinning_user_name, channel_name)
-	commit_command = "git-commit -m %s" % commit_message
-	push_message = "git-push origin master"
+	add_command = "git add ."
+	commit_message = "add pin by %s in %s (AUTO-COMMIT)" % (pinning_user_name, channel_name)
+	commit_command = "git commit -m \"%s\"" % commit_message
+	push_command = "git push origin master"
+
+	os.system(add_command)
+	os.system(commit_command)
+	os.system(push_command)
 
 
 def generate_slack_message(item):
