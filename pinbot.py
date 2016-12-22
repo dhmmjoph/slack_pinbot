@@ -2,30 +2,23 @@ from slackclient import SlackClient
 from datetime import datetime
 import time
 import os.path
-
+import codecs
 
 token = open("slack_token.dat", "r").read()
 print token
 sc = SlackClient(token)
 
+
 def create_empty_page(channel_id):
 	channel_name = sc.api_call("channels.info", channel=channel_id)["channel"]["name"]
-	page_content = """
-<html>
-	<head>
-		<title>Frendgroop pinned messages | #%s</title>
-		<link rel="stylesheet" type="text/css" href="slack.css">
-	</head>
-	<body>
-		<h1>Pinned messages archive for #%s</h1>
-		<h4>Most recently-pinned messages displayed first</h4>
-
-		<!-- New messages below this line -->
-
-	</body>
-</html>""" % (channel_name, channel_name)
-	with open(channel_id + ".html", 'w') as f:
+	page_content = """---
+layout: pins
+channel: %s
+---
+""" % channel_name
+	with codecs.open(channel_id + ".html", 'w' ,'utf-8') as f:
 		f.write(page_content)
+	print "Created file for %s" % channel_name
 
 
 def generate_html_item(item):
@@ -91,22 +84,22 @@ def add_pin_to_file(item):
 
 
 	new_file = ""
-	with open(file_path, 'rw') as f:
+	with codecs.open(file_path, 'r', 'utf-8') as f:
 		lines = f.readlines()
-		counter = 0
-		while lines[0] != "		<!-- New messages below this line -->\n" and counter < len(lines):
-			new_file += lines[counter]
-			lines.remove(lines[0])
-		new_file += lines[counter]
-
+		for line in lines[:4]:
+			new_file += line
 		new_file += generate_html_item(item)
+		for line in lines[4:]:
+			new_file += line
+	with codecs.open(file_path, 'w', 'utf-8') as f:
+		f.write(new_file)
+		
 
-		while len(lines) > 0:
-			new_file += lines[0]
-			lines.remove(lines[0])
-	return new_file
-
-
+def generate_populated_file(channel_id):
+	file_path = channel_id + ".html"
+	with open(file_path, 'w') as f:
+		print "test"
+		
 
 def generate_slack_message(item):
 	channel_id = item["channel_id"]
@@ -126,15 +119,3 @@ def generate_slack_message(item):
 
 	return message
 
-if sc.rtm_connect():
-	print "connected"
-	while True:
-		result = sc.rtm_read()
-		for item in result:
-			if item["type"] == "pin_added":
-				print generate_slack_message(item)
-				print item["item"]["message"]["text"]
-				print add_pin_to_file(item)
-				#print item
-else:
-	print "connection failed"

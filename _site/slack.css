@@ -4,9 +4,9 @@ h1, h4{
 .message {
 	display:table;
 	font-family:"Lucida Grande", sans-serif;
-	max-width: 40em;
+	width: 40em;
 	margin: 0 auto;	
-	margin-bottom: 0.8em;
+	margin-bottom: 1em;
 }
 .left{
 	position:relative;
