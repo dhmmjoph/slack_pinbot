@@ -31,20 +31,26 @@ def html_link_format(message):
 		new += " "
 	return new + " "
 
-def generate_html_item(item):
-	channel_id = item["channel_id"]
+def generate_html_item(item, existing=False):
+	if not existing: channel_id = item["channel_id"]
+	else: channel_id = item["channel"]
 	channel_name = sc.api_call("channels.info", channel=channel_id)["channel"]["name"]
 
-	pinning_user_id = item["user"]
+	if not existing: pinning_user_id = item["user"]
+	else: pinning_user_id = item["created_by"]
 	pinning_user_name = sc.api_call("users.info", user=pinning_user_id)["user"]["profile"]["real_name"]
 
-	author_user_id = item["item"]["message"]["user"]
+	if not existing: author_user_id = item["item"]["message"]["user"]
+	else: author_user_id = item["message"]["user"] 
 	author_user_name = sc.api_call("users.info", user=author_user_id)["user"]["profile"]["real_name"]
 
-	message_text = item["item"]["message"]["text"]
+	if not existing: message_text = item["item"]["message"]["text"]
+	else: message_text = item["message"]["text"] 
 	message_text = html_link_format(message_text)
 
-	unix_ts = item["item"]["message"]["ts"]
+	if not existing: unix_ts = item["item"]["message"]["ts"]
+	else: unix_ts = item["message"]["ts"]
+
 	#strip everything after the dot
 	for i in range(len(unix_ts)):
 		if (unix_ts[i] == "."):
@@ -53,7 +59,8 @@ def generate_html_item(item):
 
 	timestamp = datetime.fromtimestamp(int(unix_ts)).strftime('%m/%d/%Y %I:%M %p')
 
-	permalink = item["item"]["message"]["permalink"]
+	if not existing: permalink = item["item"]["message"]["permalink"]
+	else: permalink = item["message"]["permalink"]
 
 	entry = """
 		<!--BEGINNING of message pinned by %s -->
@@ -86,8 +93,10 @@ def generate_html_item(item):
 	return entry
 
 
-def add_pin_to_file(item):
-	channel_id = item["channel_id"]
+def add_pin_to_file(item, existing=False):
+	if item["type"] != "message": return
+	if not existing: channel_id = item["channel_id"]
+	else: channel_id = item["channel"]
 	file_path = channel_id + ".html"
 
 	#create the file if it doesn't already exist
@@ -100,7 +109,7 @@ def add_pin_to_file(item):
 		lines = f.readlines()
 		for line in lines[:4]:
 			new_file += line
-		new_file += generate_html_item(item)
+		new_file += generate_html_item(item, existing)
 		for line in lines[4:]:
 			new_file += line
 	with codecs.open(file_path, 'w', 'utf-8') as f:
@@ -138,7 +147,8 @@ def generate_slack_message(item):
 
 	pin_archive_url = "http://pins.ev3.pw/%s.html" % channel_id
 
-	message = "%s pinned %s's message. View a list of all pinned mesages in #%s at %s.\n %s" % (pinning_user_name, author_user_name, channel_name, pin_archive_url, permalink)
+	#message = "%s pinned %s's message. View a list of all pinned mesages in #%s at %s.\n %s" % (pinning_user_name, author_user_name, channel_name, pin_archive_url, permalink)
+	message = "%s pinned <%s|%s's message>. View a list of all pinned mesages in #%s at %s." % (pinning_user_name, permalink, author_user_name, channel_name, pin_archive_url)
 
 	return message
 
