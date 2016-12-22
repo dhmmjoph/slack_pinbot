@@ -26,7 +26,7 @@ def html_link_format(message):
 	new = ""
 	for word in message_split:
 		if (word[0] == '<' and word[-1] == '>'):
-			new += word[1:-1]
+			new += "<a href=\"%s\">%s</a>" % (word[1:-1], word[1:-1])
 		else: new += word
 		new += " "
 	return new + " "

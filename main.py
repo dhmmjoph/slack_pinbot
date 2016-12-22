@@ -17,6 +17,7 @@ def main():
 					pinbot.add_pin_to_file(item)
 					pinbot.push_changes(item)
 					pinbot.send_message(item)
+					#pinbot.delete_pins_if_necessary(item)
 	else:
 		print "connection failed"
 
