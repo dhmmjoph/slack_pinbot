@@ -135,3 +135,7 @@ def generate_slack_message(item):
 
 	return message
 
+def send_message(item):
+	message_text = generate_slack_message(item)
+	channel_id = item["channel_id"]
+	sc.api_call("chat.postMessage", channel=channel_id, text=message_text)

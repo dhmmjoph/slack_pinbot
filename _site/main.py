@@ -16,7 +16,7 @@ def main():
 					print item["item"]["message"]["text"]
 					pinbot.add_pin_to_file(item)
 					pinbot.push_changes(item)
-					#pinbot.send_message(item)
+					pinbot.send_message(item)
 	else:
 		print "connection failed"
 
