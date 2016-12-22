@@ -131,7 +131,7 @@ def generate_slack_message(item):
 
 	pin_archive_url = "http://pins.ev3.pw/%s.html" % channel_id
 
-	message = "%s pinned &lt;%s|%s's message&gt;. View a list of all pinned mesages in %s at %s." % (pinning_user_name, permalink, author_user_name, channel_name, pin_archive_url)
+	message = "%s pinned %s's message. View a list of all pinned mesages in #%s at %s.\n %s" % (pinning_user_name, author_user_name, channel_name, pin_archive_url, permalink)
 
 	return message
 
