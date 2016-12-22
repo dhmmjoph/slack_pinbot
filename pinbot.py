@@ -157,4 +157,7 @@ def generate_slack_message(item):
 def send_message(item):
 	message_text = generate_slack_message(item)
 	channel_id = item["channel_id"]
-	sc.api_call("chat.postMessage", channel=channel_id, text=message_text, as_user="true")
+	try:
+		sc.api_call("chat.postMessage", channel=channel_id, text=message_text, as_user="true")
+	except ValueError:
+		print "Not sure what this error means"
