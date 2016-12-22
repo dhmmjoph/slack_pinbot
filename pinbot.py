@@ -100,6 +100,17 @@ def generate_populated_file(channel_id):
 	with open(file_path, 'w') as f:
 		print "test"
 		
+def push_changes(item):
+	channel_id = item["channel_id"]
+	channel_name = sc.api_call("channels.info", channel=channel_id)["channel"]["name"]
+
+	pinning_user_id = item["user"]
+	pinning_user_name = sc.api_call("users.info", user=pinning_user_id)["user"]["profile"]["real_name"]
+
+	commit_message = "add pin by %s in %s" % (pinning_user_name, channel_name)
+	commit_command = "git-commit -m %s" % commit_message
+	push_message = "git-push origin master"
+
 
 def generate_slack_message(item):
 	channel_id = item["channel_id"]
