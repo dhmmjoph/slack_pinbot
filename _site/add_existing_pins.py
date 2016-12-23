@@ -12,7 +12,10 @@ if sc.rtm_connect():
 		#print pinned_items[::-1]
 		#print "\n"
 		for item in pinned_items[::-1]:
-			print item
+
+			if item["type"] == "message": print item["message"]["text"]
+			else: print "Pinned item is not a message, so skipping"
+			print
 			pinbot.add_pin_to_file(item, True)
 else:
 	print "Connection failed :("

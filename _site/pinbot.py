@@ -20,16 +20,51 @@ channel: %s
 		f.write(page_content)
 	print "Created file for %s" % channel_name
 
+def is_slack_link(word):
+	for i in range(len(word)):
+		if word[i] == "<":
+			for j in range(i, len(word)):
+				if word[j] == ">":
+					return True
+	return False
 
-def html_link_format(message):
+def html_format(message):
 	message_split = message.split()
 	new = ""
 	for word in message_split:
-		if (word[0] == '<' and word[-1] == '>'):
-			new += "<a href=\"%s\">%s</a>" % (word[1:-1], word[1:-1])
+		if is_slack_link(word):
+			lt = word.find("<")
+			gt = word.find(">")
+			bar = word.find("|")#find() will return -1 if the target is not found
+			if bar >= 0:#there is some sort of separate link text
+				address = word[lt+1:bar]
+				text = word[bar+1:gt]
+				if address[0] == "@": #it's a link to a user
+					user_name = sc.api_call("users.info", user=address[1:])["user"]["name"]
+					address = "https://frendgroop.slack.com/team/%s" % user_name
+				elif address[0] == "C": #it's a link to a channel
+					channel_name = sc.api_call("channels.info", channel=address)["channel"]["name"]
+					address = "https://frendgroop.slack.com/messages/%s" % channel_name
+				#if it's a normal link to a URl we don't need to change the address
+			else:#it's just a URL, @ mention, or channel name
+				if word[lt+1] == "@":#reference to a user
+					user_name = sc.api_call("users.info", user=word[lt+2:gt])["user"]["name"]
+					address = "https://frendgroop.slack.com/team/%s" % user_name
+					text = "@%s" % user_name
+				elif word[1] == "C":
+					channel_name = sc.api_call("channels.info", channel=word[lt+1:gt])["channel"]["name"]
+					address = "https://frendgroop.slack.com/messages/%s" % channel_name
+					text = "#%s" % channel_name
+				else:
+					address = word[lt+1:gt]
+					text = word[lt+1:gt]
+
+			new += "%s<a href=\"%s\">%s</a>%s" % (word[:lt], address, text, word[gt+1:])
 		else: new += word
 		new += " "
-	return new + " "
+	new += " "
+	print new
+	return new
 
 def generate_html_item(item, existing=False):
 	if not existing: channel_id = item["channel_id"]
@@ -46,7 +81,7 @@ def generate_html_item(item, existing=False):
 
 	if not existing: message_text = item["item"]["message"]["text"]
 	else: message_text = item["message"]["text"] 
-	message_text = html_link_format(message_text)
+	message_text = html_format(message_text)
 
 	if not existing: unix_ts = item["item"]["message"]["ts"]
 	else: unix_ts = item["message"]["ts"]
@@ -147,10 +182,7 @@ def generate_slack_message(item):
 
 	pin_archive_url = "http://pins.ev3.pw/%s.html" % channel_id
 
-	message_text = html_link_format(item["item"]["message"]["text"])
-
-	#message = "%s pinned %s's message. View a list of all pinned mesages in #%s at %s.\n %s" % (pinning_user_name, author_user_name, channel_name, pin_archive_url, permalink)
-	message = "%s pinned <%s|%s's message>: \n > %s\n View a list of all pinned mesages in #%s at %s." % (pinning_user_name, permalink, author_user_name, message_text, channel_name, pin_archive_url)
+	message = "%s pinned <%s|%s's message>. View a list of all pinned mesages in #%s at %s." % (pinning_user_name, permalink, author_user_name, channel_name, pin_archive_url)
 
 	return message
 
@@ -160,4 +192,4 @@ def send_message(item):
 	try:
 		sc.api_call("chat.postMessage", channel=channel_id, text=message_text, as_user="true")
 	except ValueError:
-		print "Not sure what this error means"
+		print "ValueError: message probably got sent anyway so whatever"
