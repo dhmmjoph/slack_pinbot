@@ -28,11 +28,19 @@ def is_slack_link(word):
 					return True
 	return False
 
+def is_emoji(word):
+	for i in range(len(word)):
+		if word[i] == ":":
+			for j in range(i, len(word)):
+				if word[j] == ":":
+					return True
+	return False
+
 def html_format(message):
 	message_split = message.split()
 	new = ""
 	for word in message_split:
-		if is_slack_link(word):
+		if is_slack_link(word):#is the word a link? convert it to an HTML <a> tag
 			lt = word.find("<")
 			gt = word.find(">")
 			bar = word.find("|")#find() will return -1 if the target is not found
@@ -60,6 +68,8 @@ def html_format(message):
 					text = word[lt+1:gt]
 
 			new += "%s<a href=\"%s\">%s</a>%s" % (word[:lt], address, text, word[gt+1:])
+		elif is_emoji(word):#is the word an emoji shortcut (e.g. :smile:)? Convert it to the emoji itself
+
 		else: new += word
 		new += " "
 	new += " "
